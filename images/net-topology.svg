@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 380" width="820" height="380" role="img" aria-labelledby="title desc">
+  <title id="title">两个网段通过路由器互联的拓扑图</title>
+  <desc id="desc">左侧网段 192.168.1.0/24 由交换机连接两台计算机，右侧网段 192.168.2.0/24 由交换机连接两台计算机，两个交换机分别连接到中间路由器的两个接口。</desc>
+
+  <defs>
+    <style>
+      .bg { fill: #f7f9fc; }
+      .zone { fill: #ffffff; stroke: #c9d6e6; stroke-width: 1.5; }
+      .zone-title { font: 600 13px "Microsoft YaHei", "PingFang SC", sans-serif; fill: #475569; }
+      .link { stroke: #64748b; stroke-width: 2.5; fill: none; }
+      .node { fill: #ffffff; stroke: #64748b; stroke-width: 2; }
+      .router { fill: #eef4ff; stroke: #2f6fed; stroke-width: 2.5; }
+      .pc-screen { fill: #dbeafe; stroke: #2f6fed; stroke-width: 1.5; }
+      .label { font: 12px "Microsoft YaHei", "PingFang SC", sans-serif; fill: #334155; }
+      .label-small { font: 11px "Microsoft YaHei", "PingFang SC", sans-serif; fill: #64748b; }
+      .iface { font: 11px Consolas, monospace; fill: #2f6fed; }
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="820" height="380" rx="12"/>
+
+  <!-- 左网段 -->
+  <rect class="zone" x="24" y="36" width="240" height="308" rx="10"/>
+  <text class="zone-title" x="44" y="62">网段 A：192.168.1.0/24</text>
+
+  <!-- 右网段 -->
+  <rect class="zone" x="556" y="36" width="240" height="308" rx="10"/>
+  <text class="zone-title" x="576" y="62">网段 B：192.168.2.0/24</text>
+
+  <!-- 链路：PC -> 交换机 -->
+  <line class="link" x1="104" y1="122" x2="104" y2="168"/>
+  <line class="link" x1="184" y1="122" x2="184" y2="168"/>
+  <line class="link" x1="634" y1="122" x2="634" y2="168"/>
+  <line class="link" x1="714" y1="122" x2="714" y2="168"/>
+
+  <!-- 链路：交换机 -> 路由器 -->
+  <line class="link" x1="144" y1="204" x2="144" y2="248"/>
+  <line class="link" x1="144" y1="248" x2="344" y2="248"/>
+  <line class="link" x1="344" y1="248" x2="344" y2="204"/>
+  <line class="link" x1="476" y1="204" x2="476" y2="248"/>
+  <line class="link" x1="476" y1="248" x2="674" y2="248"/>
+  <line class="link" x1="674" y1="248" x2="674" y2="204"/>
+
+  <!-- 左边 PC -->
+  <g>
+    <rect class="pc-screen" x="78" y="82" width="52" height="34" rx="4"/>
+    <rect class="node" x="90" y="116" width="28" height="6" rx="2"/>
+    <text class="label" x="104" y="78" text-anchor="middle">PC1</text>
+    <text class="label-small" x="104" y="140" text-anchor="middle">.10</text>
+  </g>
+  <g>
+    <rect class="pc-screen" x="158" y="82" width="52" height="34" rx="4"/>
+    <rect class="node" x="170" y="116" width="28" height="6" rx="2"/>
+    <text class="label" x="184" y="78" text-anchor="middle">PC2</text>
+    <text class="label-small" x="184" y="140" text-anchor="middle">.11</text>
+  </g>
+
+  <!-- 右边 PC -->
+  <g>
+    <rect class="pc-screen" x="608" y="82" width="52" height="34" rx="4"/>
+    <rect class="node" x="620" y="116" width="28" height="6" rx="2"/>
+    <text class="label" x="634" y="78" text-anchor="middle">PC3</text>
+    <text class="label-small" x="634" y="140" text-anchor="middle">.10</text>
+  </g>
+  <g>
+    <rect class="pc-screen" x="688" y="82" width="52" height="34" rx="4"/>
+    <rect class="node" x="700" y="116" width="28" height="6" rx="2"/>
+    <text class="label" x="714" y="78" text-anchor="middle">PC4</text>
+    <text class="label-small" x="714" y="140" text-anchor="middle">.11</text>
+  </g>
+
+  <!-- 交换机 -->
+  <g>
+    <rect class="node" x="88" y="168" width="112" height="38" rx="6"/>
+    <text class="label" x="144" y="192" text-anchor="middle">交换机 A</text>
+  </g>
+  <g>
+    <rect class="node" x="618" y="168" width="112" height="38" rx="6"/>
+    <text class="label" x="674" y="192" text-anchor="middle">交换机 B</text>
+  </g>
+
+  <!-- 路由器 -->
+  <g>
+    <rect class="router" x="332" y="132" width="156" height="76" rx="12"/>
+    <circle cx="410" cy="160" r="17" fill="none" stroke="#2f6fed" stroke-width="2"/>
+    <path d="M401 160h18M410 151v18M404 154l12 12M416 154l-12 12" stroke="#2f6fed" stroke-width="1.4"/>
+    <text class="label" x="410" y="199" text-anchor="middle">路由器</text>
+    <text class="iface" x="352" y="126">192.168.1.1</text>
+    <text class="iface" x="468" y="126" text-anchor="end">192.168.2.1</text>
+  </g>
+
+  <!-- 图注 -->
+  <text class="label-small" x="410" y="320" text-anchor="middle">图：两个不同网段通过路由器互联，路由器根据路由表选择转发路径</text>
+  <text class="label-small" x="410" y="340" text-anchor="middle">同一网段内由交换机按 MAC 地址转发；跨网段通信必须经过路由器</text>
+</svg>

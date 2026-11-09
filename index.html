@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>NCRE 刷题 · 计算机等级考试题库</title>
+  <meta name="description" content="纯前端离线 NCRE 刷题工具：即时判题、答案解析、错题本、收藏、背题模式、统计与备份。">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%233b6ef6'/%3E%3Ctext x='50' y='68' font-size='48' font-family='Arial' font-weight='bold' fill='white' text-anchor='middle'%3ENC%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    /* 首屏前应用主题，避免闪白。与 app.js 的读取键保持一致。 */
+    (function () {
+      var theme = 'light';
+      try {
+        var raw = localStorage.getItem('ncre.quiz.progress.v1');
+        var p = raw ? JSON.parse(raw) : null;
+        var pref = p && p.settings && p.settings.theme;
+        var forced = /[?&]theme=(dark|light)\b/.exec(location.search);
+        if (forced) theme = forced[1];
+        else if (pref === 'dark' || pref === 'light') theme = pref;
+        else if (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches) theme = 'dark';
+      } catch (e) { /* 隐私模式下 localStorage 可能不可用 */ }
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="topbar-main">
+        <button class="icon-btn sheet-toggle" type="button" data-act="toggle-sheet" aria-label="打开答题卡" title="答题卡">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+        <a class="brand" href="#" data-act="home" aria-label="回到刷题">
+          <span class="brand-mark">NC</span>
+          <span class="brand-text">
+            <strong id="bank-title">计算机等级考试题库</strong>
+            <small id="bank-sub">NCRE 离线刷题</small>
+          </span>
+        </a>
+        <div class="topbar-actions">
+          <button class="btn ghost" type="button" id="btn-stats" data-act="toggle-stats">统计</button>
+          <button class="btn ghost" type="button" data-act="open-import">导入</button>
+          <button class="btn ghost hide-sm" type="button" data-act="export">导出</button>
+          <button class="icon-btn" type="button" id="btn-theme" data-act="toggle-theme" aria-label="切换深浅色" title="切换深浅色">🌙</button>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <label class="field">
+          <span>科目</span>
+          <select id="sel-subject" aria-label="按科目筛选"></select>
+        </label>
+        <label class="field">
+          <span>题型</span>
+          <select id="sel-type" aria-label="按题型筛选"></select>
+        </label>
+        <label class="field">
+          <span>模式</span>
+          <select id="sel-mode" aria-label="刷题模式">
+            <option value="seq">顺序刷题</option>
+            <option value="random">随机刷题</option>
+            <option value="wrong">只刷错题</option>
+            <option value="fav">只刷收藏</option>
+            <option value="study">背题模式</option>
+          </select>
+        </label>
+        <div class="progress-mini" aria-live="off">
+          <div class="progress-mini-text">
+            <span id="progress-label">已做 0 / 0</span>
+            <span id="progress-pct">0%</span>
+          </div>
+          <div class="bar"><i id="progress-bar" style="width:0%"></i></div>
+        </div>
+        <button class="icon-btn help-btn" type="button" data-act="open-help" aria-label="快捷键说明" title="快捷键说明">?</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="main-col" id="view" aria-live="polite">
+        <div class="loading-card">
+          <div class="spinner" aria-hidden="true"></div>
+          <p>正在加载题库…</p>
+          <p class="hint">如果长时间没有反应，请确认 <code>data/</code> 目录与 <code>app.js</code> 位于同一层。</p>
+        </div>
+      </section>
+
+      <aside class="sidebar" id="sidebar" aria-label="答题卡与进度">
+        <div class="panel progress-panel">
+          <div class="ring" id="ring" style="--p:0"><span id="ring-pct">0%</span></div>
+          <div class="progress-stats">
+            <div><b id="stat-done">0</b><span>已做</span></div>
+            <div><b id="stat-right">0</b><span>答对</span></div>
+            <div><b id="stat-wrong">0</b><span>错题</span></div>
+          </div>
+          <p class="panel-note" id="set-note">当前筛选：全部题目</p>
+        </div>
+
+        <div class="panel sheet-panel">
+          <div class="panel-head">
+            <h3>答题卡</h3>
+            <button class="icon-btn sheet-close" type="button" data-act="close-sheet" aria-label="关闭答题卡">×</button>
+          </div>
+          <div class="legend" aria-hidden="true">
+            <span><i class="dot ok"></i>答对</span>
+            <span><i class="dot bad"></i>答错</span>
+            <span><i class="dot blank"></i>未答</span>
+            <span><i class="dot flag"></i>标记</span>
+          </div>
+          <div class="sheet" id="sheet"></div>
+        </div>
+
+        <div class="panel tips-panel">
+          <h3>快捷键</h3>
+          <ul class="tips">
+            <li><kbd>1</kbd>–<kbd>9</kbd> / <kbd>A</kbd>–<kbd>D</kbd> 选择</li>
+            <li><kbd>Enter</kbd> 提交 / 下一题</li>
+            <li><kbd>←</kbd><kbd>→</kbd> 上一题 / 下一题</li>
+            <li><kbd>M</kbd> 标记 · <kbd>F</kbd> 收藏 · <kbd>R</kbd> 重置</li>
+            <li><kbd>空格</kbd> 背题模式显示/隐藏答案</li>
+          </ul>
+        </div>
+      </aside>
+    </main>
+
+    <footer class="footer">
+      <span id="data-source">数据保存在本机浏览器</span>
+      <span class="dot-sep">·</span>
+      <button class="linkish" type="button" data-act="open-help">快捷键与说明</button>
+      <span class="dot-sep">·</span>
+      <span id="app-version">v1.0.0</span>
+    </footer>
+  </div>
+
+  <div class="scrim" data-act="close-sheet" aria-hidden="true"></div>
+  <div class="modal-root" id="modal-root" hidden></div>
+  <div class="toast-root" id="toast-root" role="status" aria-live="polite"></div>
+  <div class="drop-hint" id="drop-hint" aria-hidden="true">
+    <div class="drop-hint-inner">
+      <b>松开鼠标导入题库</b>
+      <span>支持 .json / .csv</span>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
